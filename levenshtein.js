@@ -20,9 +20,9 @@ function clamp(num, min, max) {
 }
 
 // Returns a number based on a keyboard key's distance from another
-function add_weight(string, target) {
-  // Bail if parameters are undefined
-  if(!string || !target){
+function add_weight(target, string, min = 0, max = 1) {
+  // If parameters are unset the function returns the max weight
+  if(!target || !string){
     return 1;
   }
 
@@ -46,12 +46,13 @@ function add_weight(string, target) {
     for(y = 0; y < keyboard[x].split(' ').length; y++) {
       let key = keyboard[x].split(' ')[y];
       // Set variables if key matches main or alternative key
-      if(key[0] == string || key[1] == string) {
+      if(key[0] == target || key[1] == target) {
         x1 = x;
         y1 = y;
       }
+
       // Set variables if key matches main or alternative key
-      if(key[0] == target || key[1] == target) {
+      if(key[0] == string || key[1] == string) {
         x2 = x;
         y2 = y;
       }
@@ -62,10 +63,21 @@ function add_weight(string, target) {
   let x3 = Math.pow(x2 - x1, 2);
   let y3 = Math.pow(y2 - y1, 2);
   let d = Math.sqrt(x3 + y3);
+
+  // The min and max distance apart from a key
+  const min_distance = 1
+  const max_distance = 10
+
   // Clamp
-  let cd = clamp(d, 0, 10);
+  let cd = clamp(d, min_distance, max_distance);
   // Map range
-  let md = map(cd, 0, 10, 0, 1);
+  let md = map(cd, min_distance, max_distance, min, max);
+
+  // Math.pow return NaN if the number is a negative
+  // This is a failsafe
+  if(!x3 || !y3) {
+    return 1;
+  }
 
   return +md.toFixed(2);
 }
@@ -116,11 +128,12 @@ function levenshtein(target, string, weighted = false, case_sensitive = false) {
       }
       // Otherwise set it to the minimum of the three values 
       else {
+        let weight = add_weight(target.charAt(i - 1), string.charAt(j - 1))
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1],
           matrix[i][j - 1],
           matrix[i - 1][j]
-        ) + weighted ? add_weight(target.charAt(i - 1), string.charAt(j - 1)) : 1;
+        ) + weighted ? weight : 1;
       }
     }
   }
@@ -162,3 +175,11 @@ function batch_levenshtein(target, strings, case_sensitive = false, return_all =
     }
   }
 }
+
+// Returning different values
+//console.log(levenshtein('bonk', 'bonk1'))
+//console.log(levenshtein('bonk1', 'bonk'))
+
+// Returning different values
+//console.log(levenshtein('bonk', 'bonk1', true))
+//console.log(levenshtein('bonk1', 'bonk', true))
