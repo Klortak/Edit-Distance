@@ -9,8 +9,69 @@ function create_object(string = '', percentage = 0, distance = 0) {
   }
 }
 
+// Returns a number mapped to a given range
+function map(num, in_min, in_max, out_min, out_max) {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+// Returns a number clamped from a given minimum and maximum
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+// Returns a number based on a keyboard key's distance from another
+function add_weight(string, target) {
+  // Bail if parameters are undefined
+  if(!string || !target){
+    return 1;
+  }
+
+  // A matrix of the keys on a keyboard
+  keyboard = [
+    '~` !1 @2 #3 $4 %5 ^6 &7 *8 (9 )0 _- += ㅤ ㅤ ',
+    'ㅤㅤ Qq Ww Ee Rr Tt Yy Uu Ii Oo Pp {[ }] |\\ ',
+    'ㅤㅤ  Aa Ss Dd Ff Gg Hh Jj Kk Ll :; \"\' ㅤ ㅤ',
+    'ㅤㅤ ㅤ Zz Xx Cc Vv Bb Nn Mm <, >. ?/ ㅤ ㅤ ㅤ '
+  ]
+
+  // Declare points
+  let x1;
+  let x2;
+  let y1;
+  let y2;
+
+  // For each row
+  for(x = 0; x < keyboard.length; x++) {
+    // For each element in the row
+    for(y = 0; y < keyboard[x].split(' ').length; y++) {
+      let key = keyboard[x].split(' ')[y];
+      // Set variables if key matches main or alternative key
+      if(key[0] == string || key[1] == string) {
+        x1 = x;
+        y1 = y;
+      }
+      // Set variables if key matches main or alternative key
+      if(key[0] == target || key[1] == target) {
+        x2 = x;
+        y2 = y;
+      }
+    }
+  }
+
+  // Calculate weight by using the distance formula
+  let x3 = Math.pow(x2 - x1, 2);
+  let y3 = Math.pow(y2 - y1, 2);
+  let d = Math.sqrt(x3 + y3);
+  // Clamp
+  let cd = clamp(d, 0, 10);
+  // Map range
+  let md = map(cd, 0, 10, 0, 1);
+
+  return +md.toFixed(2);
+}
+
 // Takes a single target and compares it to a possible match and returns the statistics
-function levenshtein(target, string, case_sensitive = false) {
+function levenshtein(target, string, weighted = false, case_sensitive = false) {
   // If both parameters are empty return a default object
   if(!target && !string) {
     return create_object()
@@ -59,7 +120,7 @@ function levenshtein(target, string, case_sensitive = false) {
           matrix[i - 1][j - 1],
           matrix[i][j - 1],
           matrix[i - 1][j]
-        ) + 1;
+        ) + weighted ? add_weight(target.charAt(i - 1), string.charAt(j - 1)) : 1;
       }
     }
   }
