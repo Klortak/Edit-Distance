@@ -6,7 +6,7 @@ function create_object(string = '', percentage = 0, distance = 0) {
     'string': string,
     'percentage': percentage,
     'distance': distance
-  }
+  };
 }
 
 // Returns a number mapped to a given range
@@ -32,7 +32,7 @@ function add_weight(string, target) {
     'ㅤㅤ Qq Ww Ee Rr Tt Yy Uu Ii Oo Pp {[ }] |\\ ',
     'ㅤㅤ  Aa Ss Dd Ff Gg Hh Jj Kk Ll :; \"\' ㅤ ㅤ',
     'ㅤㅤ ㅤ Zz Xx Cc Vv Bb Nn Mm <, >. ?/ ㅤ ㅤ ㅤ '
-  ]
+  ];
 
   // Declare points
   let x1;
@@ -74,7 +74,7 @@ function add_weight(string, target) {
 function levenshtein(target, string, weighted = false, case_sensitive = false) {
   // If both parameters are empty return a default object
   if(!target && !string) {
-    return create_object()
+    return create_object();
   }
 
   // If the target is empty return the length of the string to be compared to
@@ -84,7 +84,7 @@ function levenshtein(target, string, weighted = false, case_sensitive = false) {
 
   // If the string to be compared to is empty return the length of the target
   if(!string) {
-    return create_object(target, 0, target.length)
+    return create_object(target, 0, target.length);
   }
 
   // Lowercase both strings if case insensitive
@@ -131,4 +131,34 @@ function levenshtein(target, string, weighted = false, case_sensitive = false) {
 
   // Return an object with the original string, percentage, and distance
   return create_object(original_string, percentage, distance);
+}
+
+// Takes a single target and compares it against multiple possible matches and returns the best match
+function batch_levenshtein(target, strings, case_sensitive = false, return_all = false) {
+  let results = [];
+  let percentages = [];
+  // For each string to compare
+  for(let i = 0; i < strings.length; i++) {
+    // Get levenshtein distance
+    l = levenshtein(target, strings[i], case_sensitive);
+    // Compile results
+    results[i] = create_object(l.string, l.percentage, l.distance);
+    // Add percentage to array
+    percentages.push(l.percentage);
+  }
+
+  // If return all is true, return all the results
+  if(return_all) return results;
+
+  // Get highest percentage
+  let highest = Math.max(...percentages);
+
+  // For each result
+  for (let i = 0; i < results.length; i++) {
+    // If the highest percentage is the same as the current percentage
+    if(highest == results[i].percentage) {
+      // Return corresponding object
+      return results[i];
+    }
+  }
 }
