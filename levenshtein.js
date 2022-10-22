@@ -1,5 +1,3 @@
-// https://www.youtube.com/watch?v=We3YDTzNXEk
-
 // Returns an object for the levenshtein functions
 function create_object(string = '', percentage = 0, distance = 0) {
   return {
@@ -76,6 +74,7 @@ function add_keyboard_influence(a, b, min = 0, max = 1) {
   return +md.toFixed(2);
 }
 
+// https://www.youtube.com/watch?v=We3YDTzNXEk
 // Takes a single target and compares it to a possible match and returns the statistics
 function levenshtein(input, target, case_sensitive = false, weighted = false) {
 
@@ -144,7 +143,7 @@ function levenshtein(input, target, case_sensitive = false, weighted = false) {
 }
 
 // Takes a single target and compares it against multiple possible matches and returns the best match
-function batch_levenshtein(input, targets, case_sensitive = false, weighted = false, return_all = false) {
+function batch_levenshtein(input, targets, case_sensitive = false, weighted = false, return_amount = 1) {
   let results = [];
   let percentages = [];
   // For each string to compare
@@ -160,12 +159,12 @@ function batch_levenshtein(input, targets, case_sensitive = false, weighted = fa
   // Sorts results based on distance
   results.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
 
-  // If return all is true this will return the stats for all of the words provided
-  if(return_all) {
+  // If return amount is -1 return all results
+  if(return_amount == -1) {
     return results;
   }
 
-  return results[0]
+  return results.slice(0, return_amount)
 }
 // Add in character repetition detection
 // All should return the same value
@@ -174,4 +173,4 @@ function batch_levenshtein(input, targets, case_sensitive = false, weighted = fa
 //console.log(levenshtein('bonk', 'bonnk', true))
 //console.log(levenshtein('bonk', 'bonkk', true))
 
-console.log(batch_levenshtein('test', ['test', 'tast', 'fsst']))
+console.log(batch_levenshtein('test', ['test', 'tast', 'fsst'], false, false, -1))
