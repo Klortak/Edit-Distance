@@ -77,7 +77,7 @@ function add_keyboard_influence(a, b, min = 0, max = 1) {
 }
 
 // Takes a single target and compares it to a possible match and returns the statistics
-function levenshtein(input, target, weighted = false, case_sensitive = false) {
+function levenshtein(input, target, case_sensitive = false, weighted = false) {
 
   // If both parameters are empty return a default object
   if(!input && !target) {
@@ -144,37 +144,28 @@ function levenshtein(input, target, weighted = false, case_sensitive = false) {
 }
 
 // Takes a single target and compares it against multiple possible matches and returns the best match
-function batch_levenshtein(input, targets, weighted = false, case_sensitive = false, return_all = false) {
+function batch_levenshtein(input, targets, case_sensitive = false, weighted = false, return_all = false) {
   let results = [];
   let percentages = [];
   // For each string to compare
   for(let i = 0; i < targets.length; i++) {
     // Get levenshtein distance
-    l = levenshtein(input, targets[i], weighted, case_sensitive);
+    l = levenshtein(input, targets[i], case_sensitive, weighted);
     // Compile results
     results[i] = create_object(l.string, l.percentage, l.distance);
     // Add percentage to array
     percentages.push(l.percentage);
   }
 
+  // Sorts results based on distance
+  results.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
+
   // If return all is true this will return the stats for all of the words provided
   if(return_all) {
-    results.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
     return results;
   }
 
-
-  let closest = results[0];
-
-  // For each result
-  for (let i = 0; i < results.length; i++) {
-    // If the distance is lower than the current lowest then set the object to be the closest
-    if(results[i].distance < closest.distance) {
-      closest = results[i];
-    }
-  }
-  // Return the object with the lowest distance
-  return closest;
+  return results[0]
 }
 // Add in character repetition detection
 // All should return the same value
@@ -182,3 +173,5 @@ function batch_levenshtein(input, targets, weighted = false, case_sensitive = fa
 //console.log(levenshtein('bonk', 'boonk', true))
 //console.log(levenshtein('bonk', 'bonnk', true))
 //console.log(levenshtein('bonk', 'bonkk', true))
+
+console.log(batch_levenshtein('test', ['test', 'tast', 'fsst']))
