@@ -76,7 +76,7 @@ function add_keyboard_influence(a, b, min = 0, max = 1) {
 
 // https://www.youtube.com/watch?v=We3YDTzNXEk
 // Takes a single target and compares it to a possible match and returns the statistics
-function levenshtein(input, target, case_sensitive = false, weighted = false) {
+function levenshtein({input, target, case_sensitive = false, weighted = false}) {
 
   // If both parameters are empty return a default object
   if(!input && !target) {
@@ -143,13 +143,13 @@ function levenshtein(input, target, case_sensitive = false, weighted = false) {
 }
 
 // Takes a single target and compares it against multiple possible matches and returns the best match
-function batch_levenshtein(input, targets, case_sensitive = false, weighted = false, return_amount = 1) {
+function batch_levenshtein({input, targets, case_sensitive = false, weighted = false, return_amount = 1}) {
   let results = [];
   let percentages = [];
   // For each string to compare
   for(let i = 0; i < targets.length; i++) {
     // Get levenshtein distance
-    l = levenshtein(input, targets[i], case_sensitive, weighted);
+    l = levenshtein({input: input, target: targets[i], case_sensitive: case_sensitive, weighted: weighted});
     // Compile results
     results[i] = create_object(l.string, l.percentage, l.distance);
     // Add percentage to array
@@ -166,11 +166,7 @@ function batch_levenshtein(input, targets, case_sensitive = false, weighted = fa
 
   return results.slice(0, return_amount)
 }
-// Add in character repetition detection
-// All should return the same value
-//console.log(levenshtein('bonk', 'bbonk', true))
-//console.log(levenshtein('bonk', 'boonk', true))
-//console.log(levenshtein('bonk', 'bonnk', true))
-//console.log(levenshtein('bonk', 'bonkk', true))
 
-console.log(batch_levenshtein('test', ['test', 'tast', 'fsst'], false, false, -1))
+// Add in character repetition detection
+
+console.log(batch_levenshtein({input: 'test', targets: ['test', 'test1', 'test12'], return_amount: -1}))
